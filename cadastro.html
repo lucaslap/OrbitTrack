@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OrbitTrack — Cadastrar Objeto Orbital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+<link rel="stylesheet" href="css/shared.css" />
+<link rel="stylesheet" href="css/cadastro.css" />
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav" data-screen-label="cadastro-nav">
+  <div class="logo">
+    <div class="mark"><i class="bi bi-broadcast"></i></div>
+    <div>OrbitTrack<small>SDO // ORBITAL DEBRIS OBSERVATORY</small></div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html">// Início</a>
+    <a href="dashboard.html">// Centro de Controle</a>
+    <a href="cadastro.html" class="active">// Cadastrar Objeto</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Registrar Objeto Orbital</h1>
+      <div class="crumbs">// OrbitTrack <span>›</span> Catalogação <span>›</span> Novo registro</div>
+    </div>
+    <div class="session-card">
+      <b>● SESSÃO ATIVA</b> · OP_CA · ID <span id="sessionId">--</span>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- ===================== FORM ===================== -->
+    <section class="panel" data-screen-label="cadastro-form">
+      <div class="panel-head">
+        <h2>Dados do objeto <span>// FORM-001</span></h2>
+        <div class="meta">CAMPOS OBRIG. *</div>
+      </div>
+      <div class="panel-body">
+        <form id="form" action="javascript:void(0);" novalidate>
+
+          <div class="field full">
+            <label for="f-nome">
+              <span>01 · Nome do objeto <span class="req">*</span></span>
+            </label>
+            <input class="ctrl" id="f-nome" type="text" placeholder="ex.: Starlink-2891" />
+            <div class="err-msg" data-for="f-nome">// Campo obrigatório</div>
+          </div>
+
+          <div class="field">
+            <label for="f-tipo">
+              <span>02 · Tipo <span class="req">*</span></span>
+            </label>
+            <select class="ctrl" id="f-tipo">
+              <option value="">— Selecionar —</option>
+              <option>Satélite</option>
+              <option>Detrito</option>
+              <option>Foguete</option>
+            </select>
+            <div class="err-msg" data-for="f-tipo">// Selecione um tipo</div>
+          </div>
+
+          <div class="field">
+            <label for="f-pais">
+              <span>03 · País / Agência de origem <span class="req">*</span></span>
+            </label>
+            <input class="ctrl" id="f-pais" type="text" placeholder="ex.: ESA, NASA, CNES, AEB" />
+            <div class="err-msg" data-for="f-pais">// Campo obrigatório</div>
+          </div>
+
+          <div class="field">
+            <label for="f-altitude">
+              <span>04 · Altitude (km) <span class="req">*</span></span>
+              <span class="hint">160 – 35.786</span>
+            </label>
+            <input class="ctrl" id="f-altitude" type="number" step="1" placeholder="ex.: 550" />
+            <div class="err-msg" data-for="f-altitude">// Altitude deve estar entre 160 e 35.786 km</div>
+          </div>
+
+          <div class="field">
+            <label for="f-inclinacao">
+              <span>05 · Inclinação orbital (°) <span class="req">*</span></span>
+              <span class="hint">0 – 180</span>
+            </label>
+            <input class="ctrl" id="f-inclinacao" type="number" step="0.1" placeholder="ex.: 53.0" />
+            <div class="err-msg" data-for="f-inclinacao">// Inclinação deve estar entre 0° e 180°</div>
+          </div>
+
+          <div class="field">
+            <label for="f-status">
+              <span>06 · Status <span class="req">*</span></span>
+            </label>
+            <select class="ctrl" id="f-status">
+              <option value="">— Selecionar —</option>
+              <option>Ativo</option>
+              <option>Inativo</option>
+              <option>Desconhecido</option>
+            </select>
+            <div class="err-msg" data-for="f-status">// Selecione um status</div>
+          </div>
+
+          <div class="field">
+            <label for="f-risco">
+              <span>07 · Nível de risco <span class="req">*</span></span>
+            </label>
+            <select class="ctrl" id="f-risco">
+              <option value="">— Selecionar —</option>
+              <option>Baixo</option>
+              <option>Médio</option>
+              <option>Alto</option>
+              <option>Crítico</option>
+            </select>
+            <div class="err-msg" data-for="f-risco">// Selecione o nível de risco</div>
+          </div>
+
+          <div class="actions">
+            <div class="info">// Após confirmar, objeto entra na lista da sessão atual</div>
+            <div style="display:flex; gap:10px;">
+              <button type="reset" class="btn ghost" id="btnReset">
+                <i class="bi bi-arrow-counterclockwise"></i> Limpar
+              </button>
+              <button type="submit" class="btn primary">
+                <i class="bi bi-rocket-takeoff"></i> Registrar Objeto
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===================== LISTA ===================== -->
+    <section class="panel" data-screen-label="cadastro-list">
+      <div class="panel-head">
+        <h2>Objetos da sessão <span>// SESS-LOG</span></h2>
+        <div class="meta"><span id="count">0</span> REGISTRO(S)</div>
+      </div>
+      <div class="list-body" id="list">
+        <div class="empty" id="emptyState">
+          <i class="bi bi-satellite"></i>
+          <span>Nenhum objeto registrado ainda</span>
+          <div style="margin-top:8px;">// Preencha o formulário ao lado para iniciar a catalogação</div>
+        </div>
+      </div>
+      <div class="list-foot">
+        <div>Total na sessão: <b id="countFoot">0</b></div>
+        <div>// LOCAL · NÃO PERSISTIDO</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <b>● OBJETO REGISTRADO</b> · <span id="toastText"></span>
+</div>
+
+<script src="js/cadastro.js"></script>
+</body>
+</html>

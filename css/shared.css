@@ -1,0 +1,10 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Exo 2', system-ui, sans-serif;
+  background: #050510;
+  color: #cfd8e6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}

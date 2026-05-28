@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OrbitTrack — Centro de Controle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+<link rel="stylesheet" href="css/shared.css" />
+<link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+<!-- ===================== TOPBAR ===================== -->
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><i class="bi bi-broadcast"></i></div>
+    <div class="name">OrbitTrack<small>SDO // CONTROL CENTER</small></div>
+  </div>
+  <div class="status-bar">
+    <div class="item online">
+      <span class="pulse"></span> <b id="statusLabel">SISTEMA ONLINE</b>
+    </div>
+    <div class="divider"></div>
+    <div class="item"><b>UTC</b> <span id="utcClock">--:--:--</span></div>
+    <div class="divider"></div>
+    <div class="item"><b>UPLINK</b> 98.2%</div>
+    <div class="divider"></div>
+    <div class="item"><b>STAÇÃO</b> SP-01</div>
+    <div class="divider"></div>
+    <div class="item"><b>OBJ</b> 2.847</div>
+  </div>
+  <div class="user-block">
+    <div class="meta">
+      <div class="name">Op. C. Andrade</div>
+      <div class="role">// Operador Nível 2</div>
+    </div>
+    <div class="avatar">CA</div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" data-screen-label="sidebar">
+    <div class="side-section">
+      <h6>// Navegação</h6>
+      <a href="index.html" class="side-link">
+        <i class="bi bi-house"></i> Início
+      </a>
+      <a href="dashboard.html" class="side-link active">
+        <i class="bi bi-radar"></i> Centro de Controle
+      </a>
+      <a href="cadastro.html" class="side-link">
+        <i class="bi bi-plus-square"></i> Cadastrar Objeto
+      </a>
+    </div>
+
+    <div class="side-section">
+      <h6>// Operações</h6>
+      <a href="#" class="side-link">
+        <i class="bi bi-exclamation-octagon"></i> Alertas
+        <span class="badge">12</span>
+      </a>
+      <a href="#" class="side-link">
+        <i class="bi bi-graph-up"></i> Telemetria
+      </a>
+      <a href="#" class="side-link">
+        <i class="bi bi-clock-history"></i> Histórico
+      </a>
+      <a href="#" class="side-link">
+        <i class="bi bi-gear"></i> Configurações
+      </a>
+    </div>
+
+    <div class="signal-card">
+      <div class="label"><span>SINAL</span><b>98.2%</b></div>
+      <div class="signal-bar">
+        <span class="on"></span><span class="on"></span><span class="on"></span>
+        <span class="on"></span><span class="on"></span><span class="on"></span>
+        <span class="on"></span><span class="on"></span><span class="on"></span><span></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main data-screen-label="dashboard-main">
+
+    <div class="page-header">
+      <div>
+        <h1>Centro de Controle</h1>
+        <div class="crumbs">// OrbitTrack <span>›</span> Operações <span>›</span> Visão geral</div>
+      </div>
+      <div class="header-actions">
+        <a href="#" class="btn"><i class="bi bi-download"></i> Exportar</a>
+        <a href="cadastro.html" class="btn primary"><i class="bi bi-plus-lg"></i> Novo Objeto</a>
+      </div>
+    </div>
+
+    <!-- ===================== MÉTRICAS ===================== -->
+    <section class="metrics" data-screen-label="metrics">
+
+      <article class="metric">
+        <div class="head"><span>MET_01 · CATÁLOGO</span><i class="bi bi-collection"></i></div>
+        <div class="value">2.847</div>
+        <div class="label">Objetos catalogados</div>
+        <div class="delta">
+          <span>ESTA SEMANA</span>
+          <span class="up">↑ +23</span>
+        </div>
+      </article>
+
+      <article class="metric alert">
+        <div class="head"><span>MET_02 · ALERTAS</span><i class="bi bi-exclamation-octagon"></i></div>
+        <div class="value">12</div>
+        <div class="label">Alertas ativos</div>
+        <div class="delta">
+          <span>24H</span>
+          <span class="up">↑ +4</span>
+        </div>
+      </article>
+
+      <article class="metric">
+        <div class="head"><span>MET_03 · OPERACIONAIS</span><i class="bi bi-broadcast-pin"></i></div>
+        <div class="value">1.247</div>
+        <div class="label">Satélites operacionais</div>
+        <div class="delta">
+          <span>UPTIME</span>
+          <span class="up">99.97%</span>
+        </div>
+      </article>
+
+      <article class="metric danger">
+        <div class="head"><span>MET_04 · RISCO CRÍTICO</span><i class="bi bi-radioactive"></i></div>
+        <div class="value">3</div>
+        <div class="label">Objetos em risco crítico</div>
+        <div class="delta">
+          <span>T-MINUS</span>
+          <span class="down">72H</span>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- ===================== TABELA ===================== -->
+    <section class="panel" data-screen-label="objects-table">
+      <div class="panel-head">
+        <h2>Objetos Orbitais <span>// TBL-002 · LIVE</span></h2>
+        <div class="filters">
+          <div class="filter-group">
+            <label for="filterType">Tipo</label>
+            <select id="filterType">
+              <option value="all">Todos</option>
+              <option value="Satélite">Satélite</option>
+              <option value="Detrito">Detrito</option>
+              <option value="Foguete">Foguete</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filterStatus">Status</label>
+            <select id="filterStatus">
+              <option value="all">Todos</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+              <option value="Crítico">Crítico</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filterSearch"><i class="bi bi-search"></i></label>
+            <input id="filterSearch" type="text" placeholder="Buscar ID ou nome..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th>Altitude (km)</th>
+              <th>Inclinação</th>
+              <th>Status</th>
+              <th>Nível de Risco</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-foot">
+        <div>Exibindo <b id="rowCount">0</b> de <b id="totalCount">0</b> objetos</div>
+        <div>// FONTE: ESA SDO · Atualizado <span id="updatedAt">agora</span></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>
