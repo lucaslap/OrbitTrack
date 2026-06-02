@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OrbitTrack — Mapa Orbital 3D</title>
+
+<!-- ===== Fontes (Google Fonts) ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+<!-- ===== Ícones (Bootstrap Icons) ===== -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+<!-- ===== Estilo da página (ETAPA 2) ===== -->
+<link rel="stylesheet" href="css/orbita.css" />
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR — idêntica às demais páginas, com "// Mapa Orbital" ativo
+     ============================================================ -->
+<nav class="nav" data-screen-label="orbita-nav">
+  <div class="logo">
+    <div class="mark"><i class="bi bi-broadcast"></i></div>
+    <div>OrbitTrack<small>SDO // ORBITAL DEBRIS OBSERVATORY</small></div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html">// Início</a>
+    <a href="dashboard.html">// Centro de Controle</a>
+    <a href="cadastro.html">// Cadastrar Objeto</a>
+    <a href="orbita.html" class="active">// Mapa Orbital</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HEADER DE STATUS — sistema operacional / alertas / risco
+     ============================================================ -->
+<header class="status-strip" data-screen-label="orbita-status">
+  <div class="status-item online">
+    <span class="pulse"></span> <b>SISTEMA OPERACIONAL</b>
+  </div>
+  <div class="status-divider"></div>
+  <div class="status-item warn">
+    <i class="bi bi-exclamation-triangle"></i> <b>12</b> ALERTAS ATIVOS
+  </div>
+  <div class="status-divider"></div>
+  <div class="status-item danger">
+    <i class="bi bi-radioactive"></i> <b>3</b> RISCO IMINENTE
+  </div>
+  <div class="status-spacer"></div>
+  <div class="status-item">
+    <i class="bi bi-globe-americas"></i> RENDER: <b>WEBGL</b>
+  </div>
+  <div class="status-divider"></div>
+  <div class="status-item">
+    OBJETOS EM CENA: <b id="sceneCount">—</b>
+  </div>
+</header>
+
+<!-- ============================================================
+     PALCO PRINCIPAL — globo central + painéis laterais
+     ============================================================ -->
+<main class="stage" data-screen-label="orbita-stage">
+
+  <!-- ---------- PAINEL ESQUERDO: estatísticas + filtros + alertas ---------- -->
+  <aside class="panel panel-left" data-screen-label="orbita-left">
+
+    <!-- Estatísticas globais -->
+    <section class="panel-block">
+      <div class="panel-head">
+        <h2>Telemetria global <span>// VIZ-001</span></h2>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-value" data-accent="cyan">1.247</div>
+          <div class="stat-label">// Satélites ativos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-accent="amber">1.600</div>
+          <div class="stat-label">// Detritos rastreados</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-accent="green">2.103</div>
+          <div class="stat-label">// Objetos em LEO</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-accent="red">3</div>
+          <div class="stat-label">// Alertas de colisão</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filtros por categoria -->
+    <section class="panel-block">
+      <div class="panel-head">
+        <h2>Camadas <span>// FILTER</span></h2>
+      </div>
+      <div class="filter-list" id="filterList">
+        <button class="filter active" data-cat="satelite" aria-pressed="true">
+          <span class="swatch" style="--c:#00ff88"></span>
+          <span class="f-name">Satélites ativos</span>
+          <span class="f-count" data-count="satelite">0</span>
+        </button>
+        <button class="filter active" data-cat="constelacao" aria-pressed="true">
+          <span class="swatch" style="--c:#00d4ff"></span>
+          <span class="f-name">Constelações / estações</span>
+          <span class="f-count" data-count="constelacao">0</span>
+        </button>
+        <button class="filter active" data-cat="detrito" aria-pressed="true">
+          <span class="swatch" style="--c:#ffd34a"></span>
+          <span class="f-name">Detritos</span>
+          <span class="f-count" data-count="detrito">0</span>
+        </button>
+        <button class="filter active" data-cat="risco" aria-pressed="true">
+          <span class="swatch" style="--c:#ff4444"></span>
+          <span class="f-name">Risco de colisão</span>
+          <span class="f-count" data-count="risco">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Feed de alertas -->
+    <section class="panel-block panel-grow">
+      <div class="panel-head">
+        <h2>Alertas recentes <span>// LOG</span></h2>
+      </div>
+      <ul class="alert-feed" id="alertFeed">
+        <li class="alert-row danger">
+          <span class="dot"></span>
+          <div>
+            <div class="a-title">Conjunção crítica · DEB-112 × CBERS-4A</div>
+            <div class="a-meta">T-MINUS 41H · P 1:8.200</div>
+          </div>
+        </li>
+        <li class="alert-row warn">
+          <span class="dot"></span>
+          <div>
+            <div class="a-title">Aproximação · ROC-009 × Starlink-2891</div>
+            <div class="a-meta">T-MINUS 63H · P 1:24.000</div>
+          </div>
+        </li>
+        <li class="alert-row">
+          <span class="dot"></span>
+          <div>
+            <div class="a-title">Novo fragmento catalogado · DEB-203</div>
+            <div class="a-meta">LEO 520 KM · INC 74°</div>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </aside>
+
+  <!-- ---------- CANVAS CENTRAL (globo 3D) ---------- -->
+  <div class="viewport" data-screen-label="orbita-globe">
+    <canvas id="globe" aria-label="Visualizador orbital 3D da Terra"></canvas>
+
+    <!-- Overlay de carregamento (some quando o Three.js inicializa) -->
+    <div class="globe-loading" id="globeLoading">
+      <div class="spinner"></div>
+      <div class="loading-text">// INICIALIZANDO RENDERIZADOR ORBITAL…</div>
+    </div>
+
+    <!-- Legenda flutuante -->
+    <div class="legend">
+      <div class="legend-title">// LEGENDA</div>
+      <div class="legend-row"><span class="ld" style="--c:#00ff88"></span> Satélite ativo</div>
+      <div class="legend-row"><span class="ld" style="--c:#00d4ff"></span> Constelação / estação</div>
+      <div class="legend-row"><span class="ld" style="--c:#ffd34a"></span> Detrito</div>
+      <div class="legend-row"><span class="ld" style="--c:#ff4444"></span> Risco de colisão</div>
+    </div>
+
+    <!-- Dica de interação -->
+    <div class="hint">
+      <i class="bi bi-mouse"></i> ARRASTAR · ROTACIONAR &nbsp;·&nbsp;
+      <i class="bi bi-zoom-in"></i> SCROLL · ZOOM &nbsp;·&nbsp;
+      <i class="bi bi-cursor"></i> CLIQUE · SELECIONAR
+    </div>
+
+    <!-- Tooltip de objeto (posicionado via JS) -->
+    <div class="obj-tooltip" id="tooltip" role="status" aria-live="polite">
+      <div class="tt-head">
+        <span class="tt-dot"></span>
+        <span class="tt-name">—</span>
+      </div>
+      <div class="tt-grid">
+        <div><span>TIPO</span><b class="tt-tipo">—</b></div>
+        <div><span>ALTITUDE</span><b class="tt-alt">—</b></div>
+        <div><span>INCLINAÇÃO</span><b class="tt-inc">—</b></div>
+        <div><span>PERÍODO</span><b class="tt-per">—</b></div>
+        <div class="tt-full"><span>RISCO</span><b class="tt-risco">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- PAINEL DIREITO: lista de objetos monitorados ---------- -->
+  <aside class="panel panel-right" data-screen-label="orbita-right">
+    <div class="panel-head sticky">
+      <h2>Objetos monitorados <span>// VIZ-003</span></h2>
+      <div class="panel-sub">// CLIQUE PARA RASTREAR NO GLOBO</div>
+    </div>
+    <ul class="obj-list" id="objList">
+      <!-- Preenchido via JS (ETAPA 3) -->
+      <li class="obj-empty">// CARREGANDO CATÁLOGO ORBITAL…</li>
+    </ul>
+  </aside>
+
+</main>
+
+<!-- ============================================================
+     BARRA INFERIOR — relógio UTC, câmera, zoom, assinatura
+     ============================================================ -->
+<footer class="bottom-bar" data-screen-label="orbita-footer">
+  <div class="bb-item"><i class="bi bi-clock"></i> UTC <b id="utcClock">--:--:--</b></div>
+  <div class="status-divider"></div>
+  <div class="bb-item">CÂMERA <b>LAT</b> <span id="camLat">0.0</span>° · <b>LON</b> <span id="camLon">0.0</span>°</div>
+  <div class="status-divider"></div>
+  <div class="bb-item">ZOOM <b id="camZoom">1.00</b>×</div>
+  <div class="status-spacer"></div>
+  <div class="bb-item sig">ORBITTRACK · GLOBAL SOLUTION 2026 · FIAP</div>
+</footer>
+
+<!-- ============================================================
+     BIBLIOTECA 3D — Three.js (ES modules via import map) + addons
+     ============================================================ -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="js/orbita.js"></script>
+
+<!-- Fallback: se os módulos não carregarem em 6s, avisa no overlay -->
+<script>
+  setTimeout(function () {
+    if (!window.__orbitaOK) {
+      var ov = document.getElementById('globeLoading');
+      if (ov) {
+        ov.innerHTML =
+          '<div class="loading-text" style="color:#ff4444">' +
+          '// FALHA AO CARREGAR O RENDERIZADOR 3D<br>' +
+          'VERIFIQUE A CONEXÃO E RECARREGUE</div>';
+      }
+    }
+  }, 6000);
+</script>
+</body>
+</html>

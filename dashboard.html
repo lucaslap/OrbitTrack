@@ -8,8 +8,525 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-<link rel="stylesheet" href="css/shared.css" />
-<link rel="stylesheet" href="css/dashboard.css" />
+<style>
+  /* =========================================================
+     OrbitTrack — Dashboard (Centro de Controle)
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Exo 2', system-ui, sans-serif;
+    background: #050510;
+    color: #cfd8e6;
+    min-height: 100vh;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* Linha de varredura (scan line) sutil */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,212,255,0.025) 0,
+      rgba(0,212,255,0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: screen;
+  }
+  body::after {
+    content: "";
+    position: fixed; left: 0; right: 0; height: 90px;
+    pointer-events: none; z-index: 99;
+    background: linear-gradient(to bottom, rgba(0,212,255,0.06), transparent);
+    animation: scan 7s linear infinite;
+  }
+  @keyframes scan {
+    0%   { top: -90px; }
+    100% { top: 100%; }
+  }
+
+  /* =========== HEADER (estilo NASA-like) =========== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(5,5,16,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #1a2744;
+    display: grid;
+    grid-template-columns: 280px 1fr auto;
+    align-items: center;
+    height: 64px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 24px;
+    border-right: 1px solid #1a2744;
+    height: 100%;
+  }
+  .brand .mark {
+    width: 32px; height: 32px;
+    border: 1px solid #00d4ff;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    color: #00d4ff;
+    box-shadow: 0 0 12px rgba(0,212,255,0.35), inset 0 0 6px rgba(0,212,255,0.25);
+  }
+  .brand .name {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 15px;
+    color: #fff;
+  }
+  .brand .name small {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: #6a829f;
+    font-weight: 400;
+  }
+
+  .status-bar {
+    display: flex; align-items: center; gap: 28px;
+    padding: 0 28px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #9fb4d4;
+    overflow: hidden;
+  }
+  .status-bar .item { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .status-bar .item b { color: #cfd8e6; font-weight: 400; }
+  .status-bar .item.online { color: #00ff88; }
+  .status-bar .pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 8px #00ff88;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .status-bar .divider {
+    width: 1px; height: 16px;
+    background: #1a2744;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.25; }
+  }
+
+  .user-block {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px;
+    border-left: 1px solid #1a2744;
+    height: 100%;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #9fb4d4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .user-block .avatar {
+    width: 32px; height: 32px; border-radius: 2px;
+    background: #1a2744; color: #00d4ff;
+    display: grid; place-items: center;
+    font-weight: 700;
+    border: 1px solid #1a2744;
+  }
+  .user-block .name { color: #fff; font-size: 12px; }
+  .user-block .role { color: #6a829f; font-size: 10px; }
+
+  /* =========== LAYOUT =========== */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* =========== SIDEBAR =========== */
+  .sidebar {
+    border-right: 1px solid #1a2744;
+    padding: 24px 0;
+    background: rgba(13,17,23,0.6);
+  }
+  .side-section {
+    padding: 0 16px;
+    margin-bottom: 20px;
+  }
+  .side-section h6 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: #6a829f;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    padding: 0 8px;
+  }
+  .side-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: 2px;
+    text-decoration: none;
+    color: #9fb4d4;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: 120ms;
+    border-left: 2px solid transparent;
+  }
+  .side-link i { font-size: 16px; color: #6a829f; }
+  .side-link:hover {
+    background: rgba(0,212,255,0.05);
+    color: #cfd8e6;
+  }
+  .side-link.active {
+    background: rgba(0,212,255,0.08);
+    color: #00d4ff;
+    border-left-color: #00d4ff;
+  }
+  .side-link.active i { color: #00d4ff; }
+  .side-link .badge {
+    margin-left: auto;
+    background: #ff4444;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .signal-card {
+    margin: 24px 16px 0;
+    padding: 16px;
+    border: 1px solid #1a2744;
+    background: #0d1117;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: #6a829f;
+    text-transform: uppercase;
+  }
+  .signal-card .label { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .signal-card .label b { color: #00ff88; font-weight: 400; }
+  .signal-bar {
+    height: 6px;
+    display: flex; gap: 2px;
+  }
+  .signal-bar span {
+    flex: 1;
+    background: #1a2744;
+  }
+  .signal-bar span.on { background: #00d4ff; box-shadow: 0 0 6px rgba(0,212,255,0.7); }
+
+  /* =========== MAIN =========== */
+  main {
+    padding: 28px 32px 60px;
+    overflow-x: auto;
+  }
+
+  .page-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 16px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .page-header h1 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .page-header .crumbs {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #6a829f;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .page-header .crumbs span { color: #00d4ff; }
+  .header-actions { display: flex; gap: 10px; }
+  .header-actions .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid #1a2744;
+    background: #0d1117;
+    color: #cfd8e6;
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none;
+    transition: 140ms;
+  }
+  .header-actions .btn:hover { border-color: #00d4ff; color: #00d4ff; }
+  .header-actions .btn.primary {
+    background: #00d4ff; color: #050510; border-color: #00d4ff; font-weight: 700;
+    box-shadow: 0 0 18px rgba(0,212,255,0.3);
+  }
+  .header-actions .btn.primary:hover { background: #5be4ff; color: #050510; }
+
+  /* =========== MÉTRICAS =========== */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .metric {
+    background:
+      linear-gradient(rgba(26,39,68,0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,39,68,0.12) 1px, transparent 1px),
+      #0d1117;
+    background-size: 24px 24px, 24px 24px, auto;
+    border: 1px solid #1a2744;
+    padding: 18px 20px;
+    position: relative;
+    transition: 180ms;
+  }
+  .metric:hover {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 1px rgba(0,212,255,0.35), 0 0 22px rgba(0,212,255,0.18);
+  }
+  .metric.alert:hover  { border-color: #ff4444; box-shadow: 0 0 0 1px rgba(255,68,68,0.4), 0 0 22px rgba(255,68,68,0.2); }
+  .metric.danger:hover { border-color: #ff4444; box-shadow: 0 0 0 1px rgba(255,68,68,0.4), 0 0 22px rgba(255,68,68,0.2); }
+  .metric .head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: #6a829f;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .metric .head i { font-size: 14px; color: #00d4ff; }
+  .metric .value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 38px;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 14px rgba(0,212,255,0.25);
+    letter-spacing: 0.02em;
+  }
+  .metric.alert .value  { color: #ffd34a; text-shadow: 0 0 14px rgba(255,211,74,0.3); }
+  .metric.danger .value { color: #ff4444; text-shadow: 0 0 14px rgba(255,68,68,0.35); }
+  .metric .label {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    color: #cfd8e6;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .metric .delta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #1a2744;
+    color: #6a829f;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display: flex; justify-content: space-between;
+  }
+  .metric .delta .up   { color: #00ff88; }
+  .metric .delta .down { color: #ff4444; }
+
+  /* =========== PAINEL TABELA =========== */
+  .panel {
+    border: 1px solid #1a2744;
+    background: #0d1117;
+    position: relative;
+  }
+  .panel::before,
+  .panel::after {
+    content: ""; position: absolute; width: 14px; height: 14px;
+    border: 1px solid #00d4ff;
+  }
+  .panel::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .panel::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #1a2744;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .panel-head h2 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin: 0;
+    color: #fff;
+  }
+  .panel-head h2 span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #00d4ff;
+    margin-left: 10px;
+    letter-spacing: 0.25em;
+  }
+
+  .filters {
+    display: flex; gap: 12px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-group {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6a829f;
+    letter-spacing: 0.18em;
+  }
+  .filter-group select,
+  .filter-group input {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    background: #050510;
+    color: #cfd8e6;
+    border: 1px solid #1a2744;
+    padding: 8px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    outline: none;
+  }
+  .filter-group select:focus,
+  .filter-group input:focus {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 1px rgba(0,212,255,0.4);
+  }
+  .filter-group input { min-width: 200px; }
+
+  /* =========== TABELA =========== */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+  }
+  thead th {
+    text-align: left;
+    padding: 12px 16px;
+    background: rgba(0,212,255,0.04);
+    color: #6a829f;
+    font-weight: 400;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1a2744;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(26,39,68,0.6);
+    color: #cfd8e6;
+    white-space: nowrap;
+  }
+  tbody tr { transition: 100ms; }
+  tbody tr:hover { background: rgba(0,212,255,0.04); }
+  tbody td.id { color: #00d4ff; }
+  tbody td.name { color: #fff; font-family: 'Exo 2', sans-serif; letter-spacing: 0.04em; }
+  tbody td.num { font-variant-numeric: tabular-nums; }
+
+  .empty-row td {
+    text-align: center;
+    color: #6a829f;
+    padding: 32px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+
+  /* =========== TAGS =========== */
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .tag::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+  }
+  .tag.ativo    { color: #00ff88; border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.06); }
+  .tag.inativo  { color: #6a829f; border-color: rgba(106,130,159,0.4); background: rgba(106,130,159,0.06); }
+  .tag.critico  { color: #ff4444; border-color: rgba(255,68,68,0.4); background: rgba(255,68,68,0.06); }
+
+  .risk {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .risk .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .risk.baixo   { color: #00ff88; }
+  .risk.medio   { color: #ffd34a; }
+  .risk.alto    { color: #ff9c4a; }
+  .risk.critico { color: #ff4444; }
+
+  .table-foot {
+    padding: 12px 20px;
+    border-top: 1px solid #1a2744;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #6a829f;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .table-foot b { color: #00d4ff; font-weight: 400; }
+
+  /* =========== Responsivo =========== */
+  @media (max-width: 1100px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .topbar { grid-template-columns: 1fr auto; }
+    .brand { display: none; }
+    .status-bar { padding-left: 16px; gap: 16px; font-size: 10px; }
+  }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      border-right: 0; border-bottom: 1px solid #1a2744;
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 12px;
+    }
+    .side-section { padding: 0; margin: 0; }
+    .side-section h6 { display: none; }
+    .side-link { padding: 8px 10px; font-size: 11px; }
+    .signal-card { display: none; }
+    main { padding: 20px 16px 40px; }
+    .metrics { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .filter-group input { min-width: 140px; }
+    .user-block .meta { display: none; }
+  }
+</style>
 </head>
 <body>
 
@@ -55,6 +572,9 @@
       </a>
       <a href="cadastro.html" class="side-link">
         <i class="bi bi-plus-square"></i> Cadastrar Objeto
+      </a>
+      <a href="orbita.html" class="side-link">
+        <i class="bi bi-globe-americas"></i> Mapa Orbital
       </a>
     </div>
 
@@ -200,6 +720,119 @@
   </main>
 </div>
 
-<script src="js/dashboard.js"></script>
+<script>
+/* =========================================================
+   DADOS ESTÁTICOS
+   Array com 8 objetos orbitais simulados. Cada item segue o
+   contrato:
+     id          string  ex.: "SAT-001"
+     nome        string
+     tipo        "Satélite" | "Detrito" | "Foguete"
+     altitude    número em km
+     inclinacao  número em graus
+     status      "Ativo" | "Inativo" | "Crítico"
+     risco       "Baixo" | "Médio" | "Alto" | "Crítico"
+   ========================================================= */
+const objetos = [
+  { id: "SAT-001", nome: "Starlink-2891",      tipo: "Satélite", altitude: 550,   inclinacao: 53,  status: "Ativo",    risco: "Baixo"   },
+  { id: "DEB-047", nome: "Fragmento Fengyun",  tipo: "Detrito",  altitude: 850,   inclinacao: 98,  status: "Inativo",  risco: "Crítico" },
+  { id: "SAT-014", nome: "Amazonas-Nexus 1",   tipo: "Satélite", altitude: 35786, inclinacao: 0,   status: "Ativo",    risco: "Baixo"   },
+  { id: "DEB-112", nome: "Painel Solar Mir",   tipo: "Detrito",  altitude: 410,   inclinacao: 51,  status: "Crítico",  risco: "Crítico" },
+  { id: "ROC-009", nome: "Estágio Longa Marcha 5B", tipo: "Foguete", altitude: 220, inclinacao: 41, status: "Crítico", risco: "Alto"    },
+  { id: "SAT-203", nome: "CBERS-04A",          tipo: "Satélite", altitude: 628,   inclinacao: 97.9, status: "Ativo",   risco: "Baixo"   },
+  { id: "DEB-088", nome: "Cosmos-1408 frag.",  tipo: "Detrito",  altitude: 480,   inclinacao: 82.6, status: "Inativo", risco: "Médio"   },
+  { id: "SAT-077", nome: "Sentinel-2B",        tipo: "Satélite", altitude: 786,   inclinacao: 98.6, status: "Ativo",   risco: "Baixo"   }
+];
+
+/* =========================================================
+   RENDERIZAÇÃO DA TABELA
+   Recebe a lista filtrada e desenha as linhas. Mantém uma
+   linha de "estado vazio" quando o filtro não retorna nada.
+   ========================================================= */
+const tbody       = document.getElementById('tbody');
+const filterType  = document.getElementById('filterType');
+const filterStat  = document.getElementById('filterStatus');
+const filterText  = document.getElementById('filterSearch');
+const rowCount    = document.getElementById('rowCount');
+const totalCount  = document.getElementById('totalCount');
+
+const nf = new Intl.NumberFormat('pt-BR');
+
+function statusClass(s) {
+  if (s === 'Ativo')    return 'ativo';
+  if (s === 'Inativo')  return 'inativo';
+  if (s === 'Crítico')  return 'critico';
+  return 'inativo';
+}
+function riskClass(r) {
+  return ({ 'Baixo':'baixo', 'Médio':'medio', 'Alto':'alto', 'Crítico':'critico' })[r] || 'baixo';
+}
+
+function renderRows(list) {
+  if (!list.length) {
+    tbody.innerHTML = `
+      <tr class="empty-row">
+        <td colspan="7">// Nenhum objeto corresponde aos filtros aplicados</td>
+      </tr>`;
+  } else {
+    tbody.innerHTML = list.map(o => `
+      <tr>
+        <td class="id">${o.id}</td>
+        <td class="name">${o.nome}</td>
+        <td>${o.tipo}</td>
+        <td class="num">${nf.format(o.altitude)}</td>
+        <td class="num">${o.inclinacao}°</td>
+        <td><span class="tag ${statusClass(o.status)}">${o.status}</span></td>
+        <td><span class="risk ${riskClass(o.risco)}"><span class="dot"></span>${o.risco}</span></td>
+      </tr>
+    `).join('');
+  }
+  rowCount.textContent  = list.length;
+  totalCount.textContent = objetos.length;
+}
+
+/* =========================================================
+   FILTROS
+   Combina tipo + status + busca textual (id ou nome).
+   "all" significa "qualquer valor".
+   ========================================================= */
+function applyFilters() {
+  const t = filterType.value;
+  const s = filterStat.value;
+  const q = filterText.value.trim().toLowerCase();
+
+  const out = objetos.filter(o => {
+    const okT = (t === 'all') || (o.tipo === t);
+    const okS = (s === 'all') || (o.status === s);
+    const okQ = !q || o.id.toLowerCase().includes(q) || o.nome.toLowerCase().includes(q);
+    return okT && okS && okQ;
+  });
+  renderRows(out);
+}
+
+filterType.addEventListener('change', applyFilters);
+filterStat.addEventListener('change', applyFilters);
+filterText.addEventListener('input', applyFilters);
+
+renderRows(objetos);
+
+/* =========================================================
+   RELÓGIO UTC + MARCA DE ATUALIZAÇÃO
+   ========================================================= */
+(function clock() {
+  const el = document.getElementById('utcClock');
+  const upd = document.getElementById('updatedAt');
+  function tick() {
+    const d = new Date();
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+    const ss = String(d.getUTCSeconds()).padStart(2, '0');
+    el.textContent = `${hh}:${mm}:${ss}`;
+    upd.textContent = `${hh}:${mm}:${ss} UTC`;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
 </body>
 </html>
