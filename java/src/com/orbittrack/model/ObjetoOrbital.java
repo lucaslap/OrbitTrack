@@ -1,39 +1,62 @@
 package com.orbittrack.model;
 
-import java.time.LocalDateTime;
+/**
+ * Classe base do domínio do OrbitTrack.
+ *
+ * Representa um objeto monitorado em órbita. É abstrata porque
+ * todo objeto cadastrado precisa ser de um tipo concreto:
+ * Satélite, Detrito ou Foguete. A herança permite que o sistema
+ * trate todos os objetos de forma uniforme (polimorfismo) e que
+ * cada subclasse defina o seu próprio tipo e prefixo de id.
+ */
+public abstract class ObjetoOrbital {
 
-public class ObjetoOrbital {
+    // Valores aceitos para "status". Usar constantes evita strings
+    // mágicas espalhadas pelo código e centraliza o vocabulário do
+    // domínio. A camada de serviço usa isto para validar entradas.
+    public static final String STATUS_ATIVO   = "Ativo";
+    public static final String STATUS_INATIVO = "Inativo";
+    public static final String STATUS_CRITICO = "Crítico";
 
-    private int id_objeto;
+    // Valores aceitos para "risco" de colisão.
+    public static final String RISCO_BAIXO   = "Baixo";
+    public static final String RISCO_MEDIO   = "Médio";
+    public static final String RISCO_ALTO    = "Alto";
+    public static final String RISCO_CRITICO = "Crítico";
+
+    // Atributos privados — encapsulamento. Só são acessados de fora
+    // pelos getters/setters.
+    private String id;
     private String nome;
-    private int id_tipo;
-    private int id_agencia;
-    private int id_sessao;
-    private double altitude_km;
-    private double inclinacao_graus;
+    private double altitude;     // em quilômetros
+    private double inclinacao;   // em graus
     private String status;
-    private String nivel_risco;
-    private LocalDateTime data_cadastro;
+    private String risco;
 
-    public ObjetoOrbital(int id_objeto, String nome, int id_tipo, int id_agencia, int id_sessao, double altitude_km, double inclinacao_graus, String status, String nivel_risco, LocalDateTime data_cadastro) {
-        this.id_objeto = id_objeto;
+    // Construtor protegido: só as subclasses podem chamar.
+    // Reforça que ObjetoOrbital nunca é instanciado diretamente.
+    protected ObjetoOrbital(String id, String nome, double altitude,
+                            double inclinacao, String status, String risco) {
+        this.id = id;
         this.nome = nome;
-        this.id_tipo = id_tipo;
-        this.id_agencia = id_agencia;
-        this.id_sessao = id_sessao;
-        this.altitude_km = altitude_km;
-        this.inclinacao_graus = inclinacao_graus;
+        this.altitude = altitude;
+        this.inclinacao = inclinacao;
         this.status = status;
-        this.nivel_risco = nivel_risco;
-        this.data_cadastro = data_cadastro;
+        this.risco = risco;
     }
 
-    public int getId_objeto() {
-        return id_objeto;
+    // Métodos abstratos: cada subclasse responde com o seu tipo
+    // legível ("Satélite") e o prefixo do id ("SAT"). É aqui que
+    // o polimorfismo aparece.
+    public abstract String getTipo();
+    public abstract String getPrefixoId();
+
+    public String getId() {
+        return id;
     }
 
-    public void setId_objeto(int id_objeto) {
-        this.id_objeto = id_objeto;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -44,44 +67,20 @@ public class ObjetoOrbital {
         this.nome = nome;
     }
 
-    public int getId_tipo() {
-        return id_tipo;
+    public double getAltitude() {
+        return altitude;
     }
 
-    public void setId_tipo(int id_tipo) {
-        this.id_tipo = id_tipo;
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
     }
 
-    public int getId_agencia() {
-        return id_agencia;
+    public double getInclinacao() {
+        return inclinacao;
     }
 
-    public void setId_agencia(int id_agencia) {
-        this.id_agencia = id_agencia;
-    }
-
-    public int getId_sessao() {
-        return id_sessao;
-    }
-
-    public void setId_sessao(int id_sessao) {
-        this.id_sessao = id_sessao;
-    }
-
-    public double getAltitude_km() {
-        return altitude_km;
-    }
-
-    public void setAltitude_km(double altitude_km) {
-        this.altitude_km = altitude_km;
-    }
-
-    public double getInclinacao_graus() {
-        return inclinacao_graus;
-    }
-
-    public void setInclinacao_graus(double inclinacao_graus) {
-        this.inclinacao_graus = inclinacao_graus;
+    public void setInclinacao(double inclinacao) {
+        this.inclinacao = inclinacao;
     }
 
     public String getStatus() {
@@ -92,19 +91,19 @@ public class ObjetoOrbital {
         this.status = status;
     }
 
-    public String getNivel_risco() {
-        return nivel_risco;
+    public String getRisco() {
+        return risco;
     }
 
-    public void setNivel_risco(String nivel_risco) {
-        this.nivel_risco = nivel_risco;
+    public void setRisco(String risco) {
+        this.risco = risco;
     }
 
-    public LocalDateTime getData_cadastro() {
-        return data_cadastro;
-    }
-
-    public void setData_cadastro(LocalDateTime data_cadastro) {
-        this.data_cadastro = data_cadastro;
+    @Override
+    public String toString() {
+        return String.format(
+            "[%s] %-20s | %-8s | alt: %7.1f km | inc: %5.1f° | status: %-8s | risco: %s",
+            id, nome, getTipo(), altitude, inclinacao, status, risco
+        );
     }
 }
