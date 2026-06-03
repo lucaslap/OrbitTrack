@@ -38,21 +38,31 @@ Não há backend, banco de dados, bundler ou gerenciador de pacotes. O projeto r
 
 ```
 OrbitTrack/
-├── index.html          # Landing page — contador animado, hero, cards de capacidades
-├── dashboard.html      # Centro de Controle — métricas, tabela filtrável, relógio UTC
-├── cadastro.html       # Formulário de registro — validação, lista da sessão, toast
-├── orbita.html         # Mapa Orbital 3D — globo Three.js, filtros, tooltips, alertas
-├── css/
-│   ├── shared.css      # Reset e estilos base comuns
-│   ├── index.css       # Estilos da landing page
-│   ├── dashboard.css   # Estilos do centro de controle
-│   ├── cadastro.css    # Estilos do formulário de cadastro
-│   └── orbita.css      # Estilos do mapa orbital 3D
-└── js/
-    ├── index.js        # Contador animado e relógio de telemetria
-    ├── dashboard.js    # Dados orbitais, filtros e relógio UTC
-    ├── cadastro.js     # Validação, geração de ID e lista de sessão
-    └── orbita.js       # Cena Three.js, mecânica orbital, bloom, interação
+├── web/                    # Aplicação web (front-end estático)
+│   ├── index.html          # Landing page — contador animado, hero, cards de capacidades
+│   ├── dashboard.html      # Centro de Controle — métricas, tabela filtrável, relógio UTC
+│   ├── cadastro.html       # Formulário de registro — validação, lista da sessão, toast
+│   ├── orbita.html         # Mapa Orbital 3D — globo Three.js, filtros, tooltips, alertas
+│   ├── css/
+│   │   ├── shared.css      # Reset e estilos base comuns
+│   │   ├── index.css       # Estilos da landing page
+│   │   ├── dashboard.css   # Estilos do centro de controle
+│   │   ├── cadastro.css    # Estilos do formulário de cadastro
+│   │   └── orbita.css      # Estilos do mapa orbital 3D
+│   ├── js/
+│   │   ├── index.js        # Contador animado e relógio de telemetria
+│   │   ├── dashboard.js    # Dados orbitais, filtros e relógio UTC
+│   │   ├── cadastro.js     # Validação, geração de ID e lista de sessão
+│   │   └── orbita.js       # Cena Three.js, mecânica orbital, bloom, interação
+├── java/                   # Módulo Java (catálogo via console)
+│   └── src/com/orbittrack/
+│       ├── Main.java
+│       ├── model/          # ObjetoOrbital, Satelite, Detrito, Foguete
+│       ├── service/        # CatalogoService
+│       └── view/           # MenuConsole
+└── banco/                  # Modelagem de dados
+    ├── orbittrack_ddl.sql  # Script DDL Oracle (tabelas, constraints, dados de exemplo)
+    └── Relational_1.png    # Diagrama relacional
 ```
 
 ---
@@ -69,7 +79,7 @@ python -m http.server 8080
 npx serve .
 ```
 
-Acesse `http://localhost:8080` e navegue pelas quatro páginas.
+Acesse `http://localhost:8080/web/` e navegue pelas quatro páginas.
 
 ---
 
@@ -77,10 +87,10 @@ Acesse `http://localhost:8080` e navegue pelas quatro páginas.
 
 | Página | Descrição |
 |---|---|
-| `index.html` | Landing page com contador de detritos e apresentação dos módulos |
-| `dashboard.html` | Centro de controle com tabela de objetos orbitais e filtros por tipo, status e busca |
-| `cadastro.html` | Formulário para registrar novos objetos com validação e log da sessão atual |
-| `orbita.html` | Mapa orbital 3D interativo — arraste para rotacionar, scroll para zoom, clique para rastrear |
+| `web/index.html` | Landing page com contador de detritos e apresentação dos módulos |
+| `web/dashboard.html` | Centro de controle com tabela de objetos orbitais e filtros por tipo, status e busca |
+| `web/cadastro.html` | Formulário para registrar novos objetos com validação e log da sessão atual |
+| `web/orbita.html` | Mapa orbital 3D interativo — arraste para rotacionar, scroll para zoom, clique para rastrear |
 
 ---
 

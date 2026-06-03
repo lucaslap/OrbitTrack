@@ -1,6 +1,19 @@
 CLAUDE.md
-/screenshots
+
+# IntelliJ IDEA
+.idea/
+*.iml
 
 # Java — artefatos de compilação
 java/out/
 *.class
+
+# Screenshots
+/web/screenshots/
+
+# SO
+.DS_Store
+Thumbs.db
+
+.claude/
+Tarefa.md
